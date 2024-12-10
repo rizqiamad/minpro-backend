@@ -61,7 +61,7 @@ model Location {
   address     String   @db.VarChar(255)
   city_id     Int
   city        City     @relation(fields: [city_id], references: [city_id])
-  Events      Events[]
+  Events      Event[]
 }
 
 model Organizer {
@@ -73,7 +73,7 @@ model Organizer {
   no_handphone String   @db.VarChar(255)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  Events       Events[]
+  Events       Event[]
 }
 
 model User {
@@ -91,7 +91,7 @@ model User {
   updatedAt     DateTime      @updatedAt
   Transaction   Transaction[]
   Coupon        Coupon[]
-  Points        Points[]
+  Points        Point[]
   Review        Review[]
 }
 
@@ -104,9 +104,9 @@ model Ticket {
   price       Int
   seats       Int
   description String
-  events      Events   @relation(fields: [event_id], references: [event_id])
+  events      Event   @relation(fields: [event_id], references: [event_id])
 
-  Ticket_Transaction Ticket_Transaction[]
+  Ticket_Transaction TicketTransaction[]
 }
 
 model Transaction {
@@ -120,10 +120,10 @@ model Transaction {
   expiresAt      DateTime
   user           User              @relation(fields: [user_id], references: [user_id])
 
-  Ticket_Transaction Ticket_Transaction[]
+  Ticket_Transaction TicketTransaction[]
 }
 
-model Ticket_Transaction {
+model TicketTransaction {
   transaction_id Int
   ticket_id      Int
   quantity       Int
@@ -143,7 +143,7 @@ model Coupon {
   user User @relation(fields: [user_id], references: [user_id])
 }
 
-model Points {
+model Point {
   points_id Int      @id @default(autoincrement())
   user_id   Int
   total     Int
@@ -154,7 +154,7 @@ model Points {
   user User @relation(fields: [user_id], references: [user_id])
 }
 
-model Events {
+model Event {
   event_id        String        @id @default(uuid())
   name            String        @db.VarChar()
   image           String
@@ -182,7 +182,7 @@ model Review {
   comment  String
   rating   RatingRange
   user     User        @relation(fields: [user_id], references: [user_id])
-  events   Events      @relation(fields: [event_id], references: [event_id])
+  events   Event      @relation(fields: [event_id], references: [event_id])
 
   @@id([user_id, event_id])
 }
