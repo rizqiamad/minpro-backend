@@ -13,3 +13,176 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
+
+enum JenisKelamin {
+  l
+  p
+}
+
+enum StatusTransaction {
+  pending
+  success
+  canceled
+}
+
+enum EventCategory {
+  Festival
+  Konser
+  Pertandingan
+  Workshop
+  Konferensi
+  Seminar
+  Pertunjukkan
+  Lainnya
+}
+
+enum EventType {
+  free
+  paid
+}
+
+enum RatingRange {
+  ONE   @map("1")
+  TWO   @map("2")
+  THREE @map("3")
+  FOUR  @map("4")
+  FIVE  @map("5")
+}
+
+model City {
+  city_id  Int        @id @default(autoincrement())
+  city     String     @db.VarChar(255)
+  Location Location[]
+}
+
+model Location {
+  location_id Int      @id @default(autoincrement())
+  name_place  String   @db.VarChar(255)
+  address     String   @db.VarChar(255)
+  city_id     Int
+  city        City     @relation(fields: [city_id], references: [city_id])
+  Events      Events[]
+}
+
+model Organizer {
+  organizer_id Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  password     String
+  avatar       String
+  no_handphone String   @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  Events       Events[]
+}
+
+model User {
+  user_id       Int           @id @default(autoincrement())
+  full_name     String        @db.VarChar(255)
+  email         String        @unique @db.VarChar(255)
+  password      String
+  avatar        String
+  no_handphone  String        @db.VarChar(255)
+  dob           DateTime
+  jenis_kelamin JenisKelamin
+  isVerified    Boolean       @default(false)
+  ref_code      String        @unique @db.VarChar(255)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Transaction   Transaction[]
+  Coupon        Coupon[]
+  Points        Points[]
+  Review        Review[]
+}
+
+model Ticket {
+  ticket_id   Int      @id @default(autoincrement())
+  event_id    String
+  name        String   @db.VarChar(255)
+  start_date  DateTime
+  end_date    DateTime
+  price       Int
+  seats       Int
+  description String
+  events      Events   @relation(fields: [event_id], references: [event_id])
+
+  Ticket_Transaction Ticket_Transaction[]
+}
+
+model Transaction {
+  transaction_id Int               @id @default(autoincrement())
+  user_id        Int
+  base_price     Int
+  final_price    Int
+  status         StatusTransaction @default(pending)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  expiresAt      DateTime
+  user           User              @relation(fields: [user_id], references: [user_id])
+
+  Ticket_Transaction Ticket_Transaction[]
+}
+
+model Ticket_Transaction {
+  transaction_id Int
+  ticket_id      Int
+  quantity       Int
+  subtotal       Int
+  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id])
+  ticket         Ticket      @relation(fields: [ticket_id], references: [ticket_id])
+
+  @@id([transaction_id, ticket_id])
+}
+
+model Coupon {
+  user_id   Int      @id
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [user_id], references: [user_id])
+}
+
+model Points {
+  points_id Int      @id @default(autoincrement())
+  user_id   Int
+  total     Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [user_id], references: [user_id])
+}
+
+model Events {
+  event_id        String        @id @default(uuid())
+  name            String        @db.VarChar()
+  image           String
+  start_date      DateTime
+  end_date        DateTime
+  start_time      DateTime      @db.Time()
+  end_time        DateTime      @db.Time()
+  location_id     Int
+  organizer_id    Int
+  category        EventCategory
+  type            EventType
+  description     String
+  terms_condition String
+  coupon_seat     Int?
+
+  location  Location  @relation(fields: [location_id], references: [location_id])
+  organizer Organizer @relation(fields: [organizer_id], references: [organizer_id])
+  Ticket    Ticket[]
+  Review    Review[]
+}
+
+model Review {
+  user_id  Int
+  event_id String
+  comment  String
+  rating   RatingRange
+  user     User        @relation(fields: [user_id], references: [user_id])
+  events   Events      @relation(fields: [event_id], references: [event_id])
+
+  @@id([user_id, event_id])
+}
