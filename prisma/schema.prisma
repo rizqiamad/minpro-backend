@@ -56,11 +56,11 @@ model City {
 }
 
 model Location {
-  location_id Int      @id @default(autoincrement())
-  name_place  String   @db.VarChar(255)
-  address     String   @db.VarChar(255)
+  location_id Int     @id @default(autoincrement())
+  name_place  String  @db.VarChar(255)
+  address     String  @db.VarChar(255)
   city_id     Int
-  city        City     @relation(fields: [city_id], references: [city_id])
+  city        City    @relation(fields: [city_id], references: [city_id])
   Events      Event[]
 }
 
@@ -71,6 +71,7 @@ model Organizer {
   password     String
   avatar       String
   no_handphone String   @db.VarChar(255)
+  isVerified   Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   Events       Event[]
@@ -104,7 +105,7 @@ model Ticket {
   price       Int
   seats       Int
   description String
-  events      Event   @relation(fields: [event_id], references: [event_id])
+  events      Event    @relation(fields: [event_id], references: [event_id])
 
   Ticket_Transaction TicketTransaction[]
 }
@@ -182,7 +183,7 @@ model Review {
   comment  String
   rating   RatingRange
   user     User        @relation(fields: [user_id], references: [user_id])
-  events   Event      @relation(fields: [event_id], references: [event_id])
+  events   Event       @relation(fields: [event_id], references: [event_id])
 
   @@id([user_id, event_id])
 }
