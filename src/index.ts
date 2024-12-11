@@ -1,11 +1,21 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
+import { EventRouter } from "./routers/event.router";
 
-const app = express()
+const PORT = 8000;
+const app = express();
 
-const PORT = 8000
+app.use(express.json());
+app.use(cors());
 
-app.use(express.json())
-app.use(cors())
+app.get("/api", (req: Request, res: Response) => {
+  res.status(200).send("Connect to api");
+});
 
-app.listen(PORT, () => console.log(`Server running in --> http://localhost:${PORT}`))
+const eventRouter = new EventRouter();
+
+app.use("/api/events", eventRouter.getRouter());
+
+app.listen(PORT, () =>
+  console.log(`Server running in --> http://localhost:${PORT}/api`)
+);
