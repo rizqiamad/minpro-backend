@@ -69,7 +69,7 @@ model Organizer {
   name         String   @db.VarChar(255)
   email        String   @unique @db.VarChar(255)
   password     String
-  avatar       String
+  avatar       String?
   no_handphone String   @db.VarChar(255)
   isVerified   Boolean  @default(false)
   createdAt    DateTime @default(now())
@@ -102,9 +102,9 @@ model Ticket {
   name        String   @db.VarChar(255)
   start_date  DateTime
   end_date    DateTime
-  price       Int
+  price       Int      @default(0)
   seats       Int
-  description String
+  description String?
   events      Event    @relation(fields: [event_id], references: [event_id])
 
   Ticket_Transaction TicketTransaction[]
@@ -167,8 +167,8 @@ model Event {
   organizer_id    Int
   category        EventCategory
   type            EventType
-  description     String
-  terms_condition String
+  description     String?
+  terms_condition String?
   coupon_seat     Int?
 
   location  Location  @relation(fields: [location_id], references: [location_id])
