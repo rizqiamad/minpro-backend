@@ -82,7 +82,7 @@ model User {
   full_name     String        @db.VarChar(255)
   email         String        @unique @db.VarChar(255)
   password      String
-  avatar        String
+  avatar        String?
   no_handphone  String        @db.VarChar(255)
   dob           DateTime
   jenis_kelamin JenisKelamin
