@@ -8,9 +8,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-
-const storage = multer.memoryStorage();
-export const upload = multer({ storage });
+export const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/api", (req: Request, res: Response) => {
   res.status(200).send("Connect to api");

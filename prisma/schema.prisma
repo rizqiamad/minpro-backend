@@ -61,7 +61,7 @@ model Location {
   address     String  @db.VarChar(255)
   city_id     Int
   city        City    @relation(fields: [city_id], references: [city_id])
-  Events      Event[]
+  Event       Event[]
 }
 
 model Organizer {

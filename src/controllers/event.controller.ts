@@ -17,11 +17,19 @@ export class EventController {
     try {
       if (!req.file) throw { message: "Image does'nt exist" };
       const { secure_url } = await cloudinaryUpload(req.file, "events");
-      console.log(secure_url);
       req.body.image = secure_url;
-      // await prisma.event.create({ data: req.body });
-      // res.status(200).send({ message: "Your event has been set" });
-      res.status(200).send(req.body);
+
+      const { city, name_place, address, ...restBody } = req.body;
+      const { city_id } = await prisma.city.create({ data: { city } });
+
+      const loc = await prisma.location.create({
+        data: { name_place, address, city_id },
+      });
+
+      const oranizer_id = 1
+
+      await prisma.event.create({ data: {...restBody, location_id: loc.location_id, oranizer_id} });
+      res.status(200).send({ message: "Your event has been set" });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
