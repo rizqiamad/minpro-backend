@@ -13,7 +13,7 @@ export const upload = multer({ storage: multer.memoryStorage() });
 app.get("/api", (req: Request, res: Response) => {
   res.status(200).send("Connect to api");
 });
-
+2
 const eventRouter = new EventRouter();
 
 app.use("/api/events", eventRouter.getRouter());

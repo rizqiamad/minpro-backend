@@ -19,6 +19,8 @@ export class EventRouter {
       upload.single("image"),
       this.eventController.createEvent
     );
+
+    this.router.get("/:id", this.eventController.getEventId);
   }
 
   getRouter(): Router {

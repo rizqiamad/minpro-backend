@@ -50,22 +50,22 @@ enum RatingRange {
 }
 
 model City {
-  city_id  Int        @id @default(autoincrement())
+  id       Int        @id @default(autoincrement())
   city     String     @db.VarChar(255)
   Location Location[]
 }
 
 model Location {
-  location_id Int     @id @default(autoincrement())
-  name_place  String  @db.VarChar(255)
-  address     String  @db.VarChar(255)
-  city_id     Int
-  city        City    @relation(fields: [city_id], references: [city_id])
-  Event       Event[]
+  id         Int     @id @default(autoincrement())
+  name_place String  @db.VarChar(255)
+  address    String  @db.VarChar(255)
+  city_id    Int
+  city       City    @relation(fields: [city_id], references: [id])
+  Event      Event[]
 }
 
 model Organizer {
-  organizer_id Int      @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   name         String   @db.VarChar(255)
   email        String   @unique @db.VarChar(255)
   password     String
@@ -78,7 +78,7 @@ model Organizer {
 }
 
 model User {
-  user_id       Int           @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   full_name     String        @db.VarChar(255)
   email         String        @unique @db.VarChar(255)
   password      String
@@ -97,29 +97,29 @@ model User {
 }
 
 model Ticket {
-  ticket_id   Int      @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   event_id    String
   name        String   @db.VarChar(255)
-  start_date  DateTime
-  end_date    DateTime
+  start_date  DateTime @db.Timestamp()
+  end_date    DateTime @db.Timestamp()
   price       Int      @default(0)
   seats       Int
   description String?
-  events      Event    @relation(fields: [event_id], references: [event_id])
+  events      Event    @relation(fields: [event_id], references: [id])
 
   Ticket_Transaction TicketTransaction[]
 }
 
 model Transaction {
-  transaction_id Int               @id @default(autoincrement())
-  user_id        Int
-  base_price     Int
-  final_price    Int
-  status         StatusTransaction @default(pending)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  expiresAt      DateTime
-  user           User              @relation(fields: [user_id], references: [user_id])
+  id          Int               @id @default(autoincrement())
+  user_id     Int
+  base_price  Int
+  final_price Int
+  status      StatusTransaction @default(pending)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  expiresAt   DateTime
+  user        User              @relation(fields: [user_id], references: [id])
 
   Ticket_Transaction TicketTransaction[]
 }
@@ -129,8 +129,8 @@ model TicketTransaction {
   ticket_id      Int
   quantity       Int
   subtotal       Int
-  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id])
-  ticket         Ticket      @relation(fields: [ticket_id], references: [ticket_id])
+  transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  ticket         Ticket      @relation(fields: [ticket_id], references: [id])
 
   @@id([transaction_id, ticket_id])
 }
@@ -141,26 +141,26 @@ model Coupon {
   createdAt DateTime @default(now())
   expiresAt DateTime
 
-  user User @relation(fields: [user_id], references: [user_id])
+  user User @relation(fields: [user_id], references: [id])
 }
 
 model Point {
-  points_id Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   user_id   Int
   total     Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   expiresAt DateTime
 
-  user User @relation(fields: [user_id], references: [user_id])
+  user User @relation(fields: [user_id], references: [id])
 }
 
 model Event {
-  event_id        String        @id @default(uuid())
+  id              String        @id @default(uuid())
   name            String        @db.VarChar()
   image           String
-  start_date      DateTime
-  end_date        DateTime
+  start_date      DateTime      @db.Timestamp()
+  end_date        DateTime      @db.Timestamp()
   start_time      DateTime      @db.Time()
   end_time        DateTime      @db.Time()
   location_id     Int
@@ -171,8 +171,8 @@ model Event {
   terms_condition String?
   coupon_seat     Int?
 
-  location  Location  @relation(fields: [location_id], references: [location_id])
-  organizer Organizer @relation(fields: [organizer_id], references: [organizer_id])
+  location  Location  @relation(fields: [location_id], references: [id])
+  organizer Organizer @relation(fields: [organizer_id], references: [id])
   Ticket    Ticket[]
   Review    Review[]
 }
@@ -182,8 +182,8 @@ model Review {
   event_id String
   comment  String
   rating   RatingRange
-  user     User        @relation(fields: [user_id], references: [user_id])
-  events   Event       @relation(fields: [event_id], references: [event_id])
+  user     User        @relation(fields: [user_id], references: [id])
+  events   Event       @relation(fields: [event_id], references: [id])
 
   @@id([user_id, event_id])
 }
