@@ -11,7 +11,7 @@ export class EventController {
       const filter: Prisma.EventWhereInput = {};
 
       if (cat) {
-        filter.category = cat as Prisma.EnumEventCategoryFilter
+        filter.category = cat as Prisma.EnumEventCategoryFilter;
       }
 
       const totalEvent = await prisma.event.aggregate({
@@ -30,13 +30,14 @@ export class EventController {
           image: true,
           start_date: true,
           end_date: true,
+          type: true,
           organizer: {
             select: {
               name: true,
-              avatar: true
-            }
-          }
-        }
+              avatar: true,
+            },
+          },
+        },
       });
       res.status(200).send({ total_page, page, result: events });
     } catch (err) {
@@ -89,6 +90,33 @@ export class EventController {
     try {
       const event = await prisma.event.findUnique({
         where: { id: req.params.id },
+        select: {
+          name: true,
+          image: true,
+          start_date: true,
+          end_date: true,
+          start_time: true,
+          end_time: true,
+          location: {
+            select: {
+              name_place: true,
+              address: true,
+              city: {
+                select: {
+                  city: true,
+                },
+              },
+            },
+          },
+          organizer: {
+            select: {
+              name: true,
+              avatar: true,
+            },
+          },
+          description: true,
+          terms_condition: true,
+        },
       });
       res.status(200).send({ result: event });
     } catch (err) {
