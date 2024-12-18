@@ -7,7 +7,7 @@ export class EventController {
   async getEvents(req: Request, res: Response) {
     try {
       const limit = 8;
-      const { sorts = "asc", page = 1, cat } = req.query;
+      const { sorts = "asc", page = "1", cat } = req.query;
       const filter: Prisma.EventWhereInput = {};
 
       if (cat) {
