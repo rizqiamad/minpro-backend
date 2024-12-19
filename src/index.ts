@@ -3,6 +3,7 @@ import cors from "cors";
 import { EventRouter } from "./routers/event.router";
 import multer from "multer";
 import { TicketRouter } from "./routers/ticket.router";
+import { TransactionRouter } from "./routers/transaction.router";
 
 const PORT = 8000;
 const app = express();
@@ -17,9 +18,11 @@ app.get("/api", (req: Request, res: Response) => {
 
 const eventRouter = new EventRouter();
 const ticketRouter = new TicketRouter();
+const transactionRouter = new TransactionRouter();
 
 app.use("/api/events", eventRouter.getRouter());
 app.use("/api/tickets", ticketRouter.getRouter());
+app.use("/api/transactions", transactionRouter.getRouter());
 
 app.listen(PORT, () =>
   console.log(`Server running in --> http://localhost:${PORT}/api`)
