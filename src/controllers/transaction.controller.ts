@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
+const midtransClient = require("midtrans-client");
 
 export class TransactionController {
   async createTransaction(req: Request, res: Response) {
@@ -73,6 +74,25 @@ export class TransactionController {
         },
       });
       res.status(200).send({ result: transaction });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getSnapToken(req: Request, res: Response) {
+    try {
+      const snap = new midtransClient.Snap({
+        isProduction: false,
+        serverKey: `${process.env.MID_SERVER_KEY}`,
+      });
+
+      const parameters = {
+        transaction_details: req.body,
+      };
+
+      const transaction = await snap.createTransaction(parameters);
+      res.status(200).send({ result: transaction.token });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
