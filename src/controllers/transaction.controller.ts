@@ -22,6 +22,10 @@ export class TransactionController {
             subtotal: item.qty * item.ticket.price,
           },
         });
+        await prisma.ticket.update({
+          data: { seats: { decrement: item.qty } },
+          where: item.ticket.id,
+        });
       }
 
       res.status(200).send({ message: "Transaction created", order_id: id });
