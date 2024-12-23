@@ -4,7 +4,7 @@ import { requestBody } from "../types/reqBody";
 const midtransClient = require("midtrans-client");
 
 export class TransactionController {
-  async createTransaction(req: Request<{},   requestBody>, res: Response) {
+  async createTransaction(req: Request<{}, {}, requestBody>, res: Response) {
     try {
       const userId = 1;
       const { base_price, final_price, ticketCart } = req.body;
@@ -110,6 +110,22 @@ export class TransactionController {
 
       const transaction = await snap.createTransaction(parameters);
       res.status(200).send({ result: transaction.token });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async midtransWebHook(req: Request, res: Response) {
+    try {
+      const { transaction_status, order_id } = req.body;
+      await prisma.transaction.update({
+        where: { id: +order_id },
+        data: {
+          status: transaction_status === "settlement" ? "success" : "canceled",
+        },
+      });
+      res.status(200).send({ message: "Success" });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
