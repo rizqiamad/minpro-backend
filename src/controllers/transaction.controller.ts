@@ -8,7 +8,7 @@ export class TransactionController {
     try {
       const userId = 1;
       const { base_price, final_price, ticketCart } = req.body;
-      const expiresAt = new Date(new Date().getTime() + 10 * 60000);
+      const expiresAt = new Date(new Date().getTime() + 30 * 60000);
 
       const transactionId = await prisma.$transaction(async (prisma) => {
         const { id } = await prisma.transaction.create({
@@ -53,6 +53,7 @@ export class TransactionController {
       const transaction = await prisma.transaction.findUnique({
         where: { id: +req.params.id },
         select: {
+          expiresAt: true,
           base_price: true,
           final_price: true,
           Ticket_Transaction: {
@@ -99,6 +100,44 @@ export class TransactionController {
 
   async getSnapToken(req: Request, res: Response) {
     try {
+      const { order_id } = req.body;
+      const item_details = [];
+
+      const checkTransaction = await prisma.transaction.findUnique({
+        where: { id: order_id },
+        select: { status: true, expiresAt: true },
+      });
+      if (checkTransaction?.status === "canceled")
+        throw "You cannot continue transaction, as your delaying transaction";
+
+      const resMinutes =
+        new Date(`${checkTransaction?.expiresAt}`).getTime() -
+        new Date().getTime();
+
+      const ticketTransaction = await prisma.ticketTransaction.findMany({
+        where: { transaction_id: order_id },
+        include: {
+          ticket: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      const user = await prisma.user.findUnique({
+        where: { id: 1 },
+      });
+
+      for (const item of ticketTransaction) {
+        item_details.push({
+          id: item.ticket_id,
+          price: item.subtotal / item.quantity,
+          quantity: item.quantity,
+          name: item.ticket.name,
+        });
+      }
+
       const snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: `${process.env.MID_SERVER_KEY}`,
@@ -106,6 +145,16 @@ export class TransactionController {
 
       const parameters = {
         transaction_details: req.body,
+        customer_details: {
+          first_name: user?.full_name,
+          email: user?.email,
+          phone: user?.no_handphone,
+        },
+        item_details,
+        expiry: {
+          unit: "minutes",
+          duration: new Date(resMinutes).getMinutes(),
+        },
       };
 
       const transaction = await snap.createTransaction(parameters);
@@ -119,13 +168,55 @@ export class TransactionController {
   async midtransWebHook(req: Request, res: Response) {
     try {
       const { transaction_status, order_id } = req.body;
+      const statusTransaction =
+        transaction_status === "settlement"
+          ? "success"
+          : transaction_status === "pending"
+          ? "pending"
+          : "canceled";
+
+      if (statusTransaction === "canceled") {
+        const tickets = await prisma.ticketTransaction.findMany({
+          where: { transaction_id: +order_id },
+          select: {
+            quantity: true,
+            ticket_id: true,
+          },
+        });
+
+        for (const item of tickets) {
+          await prisma.ticket.update({
+            where: { id: item.ticket_id },
+            data: { seats: { increment: item.quantity } },
+          });
+        }
+      }
+
       await prisma.transaction.update({
         where: { id: +order_id },
         data: {
-          status: transaction_status === "settlement" ? "success" : "canceled",
+          status: statusTransaction,
         },
       });
       res.status(200).send({ message: "Success" });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getTicketTransaction(req: Request, res: Response) {
+    try {
+      const tickets = await prisma.ticketTransaction.findMany({
+        where: {
+          transaction_id: 1,
+        },
+        select: {
+          quantity: true,
+          ticket_id: true,
+        },
+      });
+      res.status(200).send({ tickets });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
