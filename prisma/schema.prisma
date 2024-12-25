@@ -51,7 +51,7 @@ enum RatingRange {
 
 model City {
   id       Int        @id @default(autoincrement())
-  city     String     @db.VarChar(255)
+  city     String     @unique @db.VarChar(255)
   Location Location[]
 }
 

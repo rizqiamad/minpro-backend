@@ -151,6 +151,10 @@ export class TransactionController {
           phone: user?.no_handphone,
         },
         item_details,
+        page_expiry: {
+          duration: new Date(resMinutes).getMinutes(),
+          unit: "minutes",
+        },
         expiry: {
           unit: "minutes",
           duration: new Date(resMinutes).getMinutes(),

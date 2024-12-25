@@ -8,12 +8,14 @@ export class EventController {
     try {
       const limit = 8;
       const { sorts = "asc", page = "1", cat, search } = req.query;
-      const filter: Prisma.EventWhereInput = {};
+      const filter: Prisma.EventWhereInput = { Ticket: { some: {} } };
 
       if (cat) filter.category = cat as Prisma.EnumEventCategoryFilter;
-      if (search) filter.name = { contains: search as string, mode: "insensitive" }
+      if (search)
+        filter.name = { contains: search as string, mode: "insensitive" };
 
       const totalEvent = await prisma.event.aggregate({
+        where: filter,
         _count: { _all: true },
       });
       const total_page = Math.ceil(totalEvent._count._all / +limit);
@@ -22,7 +24,7 @@ export class EventController {
         where: filter,
         take: limit,
         skip: +limit * (+page - 1),
-        orderBy: { start_date: sorts as any },
+        orderBy: { start_date: sorts as Prisma.SortOrder },
         select: {
           id: true,
           name: true,
@@ -35,6 +37,15 @@ export class EventController {
               name: true,
               avatar: true,
             },
+          },
+          Ticket: {
+            select: {
+              price: true,
+            },
+            orderBy: {
+              price: "asc",
+            },
+            take: 1,
           },
         },
       });
@@ -53,13 +64,17 @@ export class EventController {
 
       const { city, name_place, address, ...restBody } = req.body;
 
-      let findCity = await prisma.city.findFirst({ where: { city } });
+      let findCity = await prisma.city.findFirst({
+        where: { city: { equals: city, mode: "insensitive" } },
+      });
       if (!findCity) {
-        findCity = await prisma.city.create({ data: { city } });
+        findCity = await prisma.city.create({
+          data: { city: city[0].toUpperCase() },
+        });
       }
 
       let findLocation = await prisma.location.findFirst({
-        where: { address },
+        where: { address: { equals: city, mode: "insensitive" } },
       });
       if (findLocation?.name_place !== name_place || !findLocation) {
         findLocation = await prisma.location.create({
@@ -87,35 +102,37 @@ export class EventController {
 
   async getEventId(req: Request, res: Response) {
     try {
-      const event = await prisma.event.findUnique({
-        where: { id: req.params.id },
-        select: {
-          name: true,
-          image: true,
-          start_date: true,
-          end_date: true,
-          start_time: true,
-          end_time: true,
-          location: {
-            select: {
-              name_place: true,
-              address: true,
-              city: {
-                select: {
-                  city: true,
-                },
+      const { end_date } = req.query;
+      const eventSelect: Prisma.EventSelect = {
+        name: true,
+        image: true,
+        start_date: true,
+        end_date: true,
+        start_time: true,
+        end_time: true,
+        location: {
+          select: {
+            name_place: true,
+            address: true,
+            city: {
+              select: {
+                city: true,
               },
             },
           },
-          organizer: {
-            select: {
-              name: true,
-              avatar: true,
-            },
-          },
-          description: true,
-          terms_condition: true,
         },
+        organizer: {
+          select: {
+            name: true,
+            avatar: true,
+          },
+        },
+        description: true,
+        terms_condition: true,
+      };
+      const event = await prisma.event.findUnique({
+        where: { id: req.params.id },
+        select: Number(end_date) ? { end_date: true } : eventSelect,
       });
       res.status(200).send({ result: event });
     } catch (err) {

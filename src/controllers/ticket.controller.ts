@@ -16,8 +16,12 @@ export class TicketController {
 
   async createTicket(req: Request, res: Response) {
     try {
-      req.body.event_id = req.params.eventId;
-      await prisma.ticket.create({ data: req.body });
+      const newReqBody = {
+        ...req.body,
+        seats: Number(req.body.seats),
+        event_id: req.params.eventId,
+      };
+      await prisma.ticket.create({ data: newReqBody });
       res.status(200).send({ message: "Ticket has been created" });
     } catch (err) {
       console.log(err);
