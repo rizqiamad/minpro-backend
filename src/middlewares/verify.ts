@@ -9,13 +9,13 @@ export const verifyToken = async (
 ) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-    if(!token) throw "Unauthorised to enter"
+    if (!token) throw { message: "Unauthorised to enter" };
 
-    const verifiedUser = verify(token, "reglogin-auth")
-    req.user = verifiedUser as UserPayload
+    const verifiedUser = verify(token, "reglogin-auth");
+    req.user = verifiedUser as UserPayload;
 
-    const verifiedOrganizer = verify(token, "reglogin-auth")
-    req.organizer = verifiedOrganizer as OrganizerPayload
+    const verifiedOrganizer = verify(token, "reglogin-auth");
+    req.organizer = verifiedOrganizer as OrganizerPayload;
 
     next();
   } catch (err) {

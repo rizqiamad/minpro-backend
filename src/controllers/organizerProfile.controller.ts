@@ -3,19 +3,18 @@ import prisma from "../prisma";
 import { Prisma } from "@prisma/client";
 
 // bagian organizer_account
-export class OrganizerController {
-
+export class OrganizerProfileController {
   async getOrganizers(req: Request, res: Response) {
     try {
-        const filter: Prisma.organizer_accountWhereInput = {}
-        const { search } = req.query;
+      const filter: Prisma.OrganizerWhereInput = {};
+      const { search } = req.query;
       if (search) {
         filter.OR = [
-          { organizer_name: { contains: search as string } },
+          { name: { contains: search as string } },
           { email: { contains: search as string, mode: "insensitive" } },
         ];
       }
-      const organizers = await prisma.organizer_account.findMany();
+      const organizers = await prisma.organizer.findMany();
       res.status(200).send({ organizers });
     } catch (err) {
       console.log(err);
@@ -25,8 +24,8 @@ export class OrganizerController {
 
   async getOrganizerId(req: Request, res: Response) {
     try {
-      const organizer = await prisma.organizer_account.findUnique({
-        where: { organizer_id: req.organizer?.id },
+      const organizer = await prisma.organizer.findUnique({
+        where: { id: req.organizer?.id },
       });
       res.status(200).send({ organizer });
     } catch (err) {
@@ -37,20 +36,20 @@ export class OrganizerController {
 
   async createOrganizer(req: Request, res: Response) {
     try {
-      await prisma.organizer_account.create({ data: req.body });
+      await prisma.organizer.create({ data: req.body });
       res.status(201).send("Organizer Created");
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
     }
   }
-  
+
   async editOrganizer(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await prisma.organizer_account.update({
+      await prisma.organizer.update({
         data: req.body,
-        where: { organizer_id: +id }
+        where: { id: +id },
       });
       res.status(200).send("Organizer updated");
     } catch (err) {
@@ -62,7 +61,7 @@ export class OrganizerController {
   async deleteOrganizer(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await prisma.organizer_account.delete({ where: { organizer_id: +id } });
+      await prisma.organizer.delete({ where: { id: +id } });
       res.status(200).send("Organizer deleted");
     } catch (err) {
       console.log(err);

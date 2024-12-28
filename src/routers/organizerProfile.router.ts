@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { OrganizerController } from "../controllers/organizer.controller";
+import { OrganizerProfileController } from "../controllers/organizerProfile.controller";
 import { verifyToken } from "../middlewares/verify";
 
 
-export class OrganizerRouter{
-    private organizerController: OrganizerController
+export class OrganizerProfileRouter{
+    private organizerController: OrganizerProfileController
     private router: Router
 
     constructor() {
-        this.organizerController = new OrganizerController()
+        this.organizerController = new OrganizerProfileController()
         this.router = Router()
         this.initializeRoutes()
     }

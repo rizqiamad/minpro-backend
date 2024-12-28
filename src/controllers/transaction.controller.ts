@@ -208,22 +208,4 @@ export class TransactionController {
       res.status(400).send(err);
     }
   }
-
-  async getTicketTransaction(req: Request, res: Response) {
-    try {
-      const tickets = await prisma.ticketTransaction.findMany({
-        where: {
-          transaction_id: 1,
-        },
-        select: {
-          quantity: true,
-          ticket_id: true,
-        },
-      });
-      res.status(200).send({ tickets });
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  }
 }

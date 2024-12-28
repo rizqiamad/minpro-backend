@@ -13,7 +13,6 @@ export class TransactionRouter {
 
   private initializeRoutes() {
     this.router.post("/", this.transactionController.createTransaction);
-    this.router.get("/", this.transactionController.getTicketTransaction);
     this.router.post("/payment", this.transactionController.getSnapToken);
     this.router.post(
       "/midtrans-webhook",

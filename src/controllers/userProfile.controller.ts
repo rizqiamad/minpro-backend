@@ -2,12 +2,11 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Prisma } from "@prisma/client";
 
-// bagian user_account
-export class UserController {
+export class UserProfileController {
   async getUsers(req: Request, res: Response) {
     try {
       console.log(req.user)
-      const filter: Prisma.user_accountWhereInput = {};
+      const filter: Prisma.UserWhereInput = {};
       const { search } = req.query;
       if (search) {
         filter.OR = [
@@ -15,7 +14,7 @@ export class UserController {
           { email: { contains: search as string, mode: "insensitive" } },
         ];
       }
-      const users = await prisma.user_account.findMany({ where: filter });
+      const users = await prisma.user.findMany({ where: filter });
       res.status(200).send({ users });
     } catch (err) {
       console.log(err);
@@ -25,8 +24,8 @@ export class UserController {
 
   async getUserId(req: Request, res: Response) {
     try {
-      const user = await prisma.user_account.findUnique({
-        where: { user_id: req.user?.id }
+      const user = await prisma.user.findUnique({
+        where: { id: req.user?.id }
       });
       res.status(200).send({ user });
     } catch (err) {
@@ -37,7 +36,7 @@ export class UserController {
 
   async createUser(req: Request, res: Response) {
     try {
-      await prisma.user_account.create({ data: req.body });
+      await prisma.user.create({ data: req.body });
       res.status(201).send("User Created");
     } catch (err) {
       console.log(err);
@@ -48,9 +47,9 @@ export class UserController {
   async editUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await prisma.user_account.update({
+      await prisma.user.update({
         data: req.body,
-        where: { user_id: +id }
+        where: { id: +id }
       });
       res.status(200).send("user updated");
     } catch (err) {
@@ -62,7 +61,7 @@ export class UserController {
   async deleteUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await prisma.user_account.delete({ where: { user_id: +id } });
+      await prisma.user.delete({ where: { id: +id } });
       res.status(200).send("user deleted");
     } catch (err) {
       console.log(err);

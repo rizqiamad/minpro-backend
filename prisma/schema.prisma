@@ -87,7 +87,8 @@ model User {
   dob           DateTime
   jenis_kelamin JenisKelamin
   isVerified    Boolean       @default(false)
-  ref_code      String        @unique @db.VarChar(255)
+  ref_code      String?       @unique @db.VarChar(255)
+  refer_by      String?       @db.VarChar(255)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   Transaction   Transaction[]
