@@ -3,7 +3,6 @@ import 'express'
 
 export type UserPayload = {
     id: number,
-    kelamin: Kelamin
 }
 
 export type OrganizerPayload = {

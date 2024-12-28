@@ -34,16 +34,6 @@ export class UserProfileController {
     }
   }
 
-  async createUser(req: Request, res: Response) {
-    try {
-      await prisma.user.create({ data: req.body });
-      res.status(201).send("User Created");
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  }
-
   async editUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -52,17 +42,6 @@ export class UserProfileController {
         where: { id: +id }
       });
       res.status(200).send("user updated");
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  }
-
-  async deleteUser(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      await prisma.user.delete({ where: { id: +id } });
-      res.status(200).send("user deleted");
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

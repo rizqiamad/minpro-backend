@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { TransactionController } from "../controllers/transaction.controller";
+import { verifyToken } from "../middlewares/verify";
 
 export class TransactionRouter {
   private router: Router;
@@ -12,8 +13,8 @@ export class TransactionRouter {
   }
 
   private initializeRoutes() {
-    this.router.post("/", this.transactionController.createTransaction);
-    this.router.post("/payment", this.transactionController.getSnapToken);
+    this.router.post("/", verifyToken, this.transactionController.createTransaction);
+    this.router.post("/payment", verifyToken, this.transactionController.getSnapToken);
     this.router.post(
       "/midtrans-webhook",
       this.transactionController.midtransWebHook

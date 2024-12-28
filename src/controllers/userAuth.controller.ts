@@ -88,6 +88,8 @@ export class UserAuthController {
       const { data, password } = req.body;
       const user = await findUser(data, data);
       if (!user) throw { message: "Account not found" };
+      if (!user.isVerified)
+        throw { message: "Your account is not verified yet" };
 
       const isValidPass = await compare(password, user.password);
       if (!isValidPass) throw { message: "Incorrect password" };

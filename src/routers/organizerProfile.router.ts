@@ -16,10 +16,8 @@ export class OrganizerProfileRouter{
     private initializeRoutes(){
         this.router.get('/',verifyToken, this.organizerController.getOrganizers)
         this.router.get('/profile', verifyToken, this.organizerController.getOrganizerId)
-        this.router.post('/', this.organizerController.createOrganizer)
 
         this.router.patch('/:id', this.organizerController.editOrganizer)
-        this.router.delete('/:id', this.organizerController.deleteOrganizer)
     }
 
     getRouter(): Router{

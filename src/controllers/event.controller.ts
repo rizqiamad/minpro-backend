@@ -82,7 +82,7 @@ export class EventController {
         });
       }
 
-      const organizer_id = 1;
+      const organizer_id = req.organizer?.id;
 
       if (restBody.coupon_seat) {
         restBody.coupon_seat = Number(restBody.coupon_seat);

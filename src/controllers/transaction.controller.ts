@@ -6,13 +6,13 @@ const midtransClient = require("midtrans-client");
 export class TransactionController {
   async createTransaction(req: Request<{}, {}, requestBody>, res: Response) {
     try {
-      const userId = 1;
+      const userId = req.user?.id;
       const { base_price, final_price, ticketCart } = req.body;
       const expiresAt = new Date(new Date().getTime() + 30 * 60000);
 
       const transactionId = await prisma.$transaction(async (prisma) => {
         const { id } = await prisma.transaction.create({
-          data: { user_id: userId, base_price, final_price, expiresAt },
+          data: { user_id: userId!, base_price, final_price, expiresAt },
         });
 
         await Promise.all(
@@ -126,7 +126,7 @@ export class TransactionController {
       });
 
       const user = await prisma.user.findUnique({
-        where: { id: 1 },
+        where: { id: req.user?.id },
       });
 
       for (const item of ticketTransaction) {

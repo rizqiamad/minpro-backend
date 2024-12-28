@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { EventController } from "../controllers/event.controller";
 import { upload } from "..";
+import { verifyToken } from "../middlewares/verify";
 
 export class EventRouter {
   private router: Router;
@@ -16,6 +17,7 @@ export class EventRouter {
     this.router.get("/", this.eventController.getEvents);
     this.router.post(
       "/",
+      verifyToken,
       upload.single("image"),
       this.eventController.createEvent
     );
