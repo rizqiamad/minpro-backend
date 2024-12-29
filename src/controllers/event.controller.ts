@@ -102,7 +102,7 @@ export class EventController {
 
   async getEventId(req: Request, res: Response) {
     try {
-      const { end_date } = req.query;
+      const { end_date, type } = req.query;
       const eventSelect: Prisma.EventSelect = {
         name: true,
         image: true,
@@ -132,9 +132,33 @@ export class EventController {
       };
       const event = await prisma.event.findUnique({
         where: { id: req.params.id },
-        select: Number(end_date) ? { end_date: true } : eventSelect,
+        select: Number(type)
+          ? { type: true }
+          : Number(end_date)
+          ? { end_date: true }
+          : eventSelect,
       });
       res.status(200).send({ result: event });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getEventsOrganizer(req: Request, res: Response) {
+    try {
+      const events = await prisma.event.findMany({
+        where: { organizer_id: req.organizer?.id },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          start_date: true,
+          end_date: true,
+          type: true,
+        },
+      });
+      res.status(200).send({ result: events });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

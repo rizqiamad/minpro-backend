@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { verify } from "jsonwebtoken";
-import { OrganizerPayload, UserPayload } from "../custom";
+import { RoleIdJwtPayload, verify } from "jsonwebtoken";
+import { IPayload } from "../custom";
 
 export const verifyToken = async (
   req: Request,
@@ -11,11 +11,9 @@ export const verifyToken = async (
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) throw { message: "Unauthorized to enter" };
 
-    const verifiedUser = verify(token, process.env.JWT_KEY!);
-    req.user = verifiedUser as UserPayload;
-
-    const verifiedOrganizer = verify(token, process.env.JWT_KEY!);
-    req.organizer = verifiedOrganizer as OrganizerPayload;
+    const verified = <RoleIdJwtPayload>verify(token, process.env.JWT_KEY!);
+    if (verified.role === "user") req.user = verified as IPayload;
+    else req.organizer = verified as IPayload;
 
     next();
   } catch (err) {

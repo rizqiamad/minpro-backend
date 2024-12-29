@@ -31,7 +31,7 @@ export class OrganizerAuthController {
         },
       });
 
-      const payload = { id: newOrganizer.id };
+      const payload = { id: newOrganizer.id, role: "organizer" };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       const link = `${process.env.BASE_URL_FE}verify/organizer/${token}`;
@@ -71,11 +71,13 @@ export class OrganizerAuthController {
         where: { OR: [{ name: data }, { email: data }] },
       });
       if (!organizer) throw { message: "Organizer not found" };
+      if (!organizer.isVerified)
+        throw { message: "Your account is not verified yet" };
 
       const isValidPass = await compare(password, organizer.password);
       if (!isValidPass) throw { message: "Incorrect password" };
 
-      const payload = { id: organizer.id };
+      const payload = { id: organizer.id, role: "organizer" };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       res.status(200).send({

@@ -3,7 +3,7 @@ import prisma from "../prisma";
 import path from "path";
 import { genSalt, hash, compare } from "bcrypt";
 import { findUser, generateReferralCode } from "../services/user.services";
-import { sign, verify } from "jsonwebtoken";
+import { RoleIdJwtPayload, sign, verify } from "jsonwebtoken";
 import { transporter } from "../services/mailer";
 import fs from "fs";
 import handlebars from "handlebars";
@@ -49,7 +49,7 @@ export class UserAuthController {
       });
 
       // Generate a verification token
-      const payload = { id: newUser.id };
+      const payload = { id: newUser.id, role: "user" };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       // Verification email link
@@ -94,7 +94,7 @@ export class UserAuthController {
       const isValidPass = await compare(password, user.password);
       if (!isValidPass) throw { message: "Incorrect password" };
 
-      const payload = { id: user.id };
+      const payload = { id: user.id, role: "user" };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       res.status(200).send({
@@ -113,7 +113,9 @@ export class UserAuthController {
       const { token } = req.params;
       console.log(token);
 
-      const verifiedUser: any = verify(token, process.env.JWT_KEY!);
+      const verifiedUser = <RoleIdJwtPayload>(
+        verify(token, process.env.JWT_KEY!)
+      );
       console.log(verifiedUser);
 
       const user = await prisma.user.findUnique({

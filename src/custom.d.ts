@@ -1,19 +1,24 @@
-import { Kelamin } from '@prisma/client'
-import 'express'
+import { Kelamin } from "@prisma/client";
+import "express";
+import * as jwt from "jsonwebtoken";
 
-export type UserPayload = {
-    id: number,
-}
+export type IPayload = {
+  id: number;
+  role: "user" | "organizer";
+};
 
-export type OrganizerPayload = {
-    id: number
-}
-
-declare global{
-    namespace Express{
-        export interface Request{
-            user?: UserPayload
-            organizer?: OrganizerPayload
-        }
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: IPayload;
+      organizer?: IPayload;
     }
+  }
+}
+
+declare module "jsonwebtoken" {
+  export interface RoleIdJwtPayload extends jwt.JwtPayload {
+    id: number;
+    role: "organizer" | "user";
+  }
 }
