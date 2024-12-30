@@ -7,12 +7,12 @@ export class EventController {
   async getEvents(req: Request, res: Response) {
     try {
       const limit = 8;
-      const { sorts = "asc", page = "1", cat, search } = req.query;
-      const filter: Prisma.EventWhereInput = { Ticket: { some: {} } };
+      const { sorts = "asc", page = "1", cat } = req.query;
+      const filter: Prisma.EventWhereInput = {
+        AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+      };
 
       if (cat) filter.category = cat as Prisma.EnumEventCategoryFilter;
-      if (search)
-        filter.name = { contains: search as string, mode: "insensitive" };
 
       const totalEvent = await prisma.event.aggregate({
         where: filter,
@@ -59,6 +59,7 @@ export class EventController {
   async createEvent(req: Request, res: Response) {
     try {
       if (!req.file) throw { message: "Image does'nt exist" };
+      if (req.user) throw { message: "User is not granted" };
       const { secure_url } = await cloudinaryUpload(req.file, "events");
       req.body.image = secure_url;
 
@@ -147,8 +148,26 @@ export class EventController {
 
   async getEventsOrganizer(req: Request, res: Response) {
     try {
+      const { type } = req.query;
+      if (req.user) throw { message: "User is not granted" };
+
+      const filter: Prisma.EventWhereInput = {};
+      if (type === "active") {
+        filter.AND = [
+          { Ticket: { some: {} } },
+          { end_date: { gt: new Date() } },
+        ];
+      } else if (type === "draft") {
+        filter.AND = [
+          { Ticket: { none: {} } },
+          { end_date: { gt: new Date() } },
+        ];
+      } else if (type === "unactive") {
+        filter.end_date = { lt: new Date() };
+      }
+
       const events = await prisma.event.findMany({
-        where: { organizer_id: req.organizer?.id },
+        where: { organizer_id: req.organizer?.id, ...filter },
         select: {
           id: true,
           name: true,
