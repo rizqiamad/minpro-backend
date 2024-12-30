@@ -1,4 +1,3 @@
-import { Kelamin } from "@prisma/client";
 import "express";
 import * as jwt from "jsonwebtoken";
 
