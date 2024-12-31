@@ -101,7 +101,7 @@ export class EventController {
     }
   }
 
-  async getEventId(req: Request, res: Response) {
+  async getEventDetail(req: Request, res: Response) {
     try {
       const { end_date, type } = req.query;
       const eventSelect: Prisma.EventSelect = {
@@ -146,38 +146,12 @@ export class EventController {
     }
   }
 
-  async getEventsOrganizer(req: Request, res: Response) {
+  async getEventId(req: Request, res: Response) {
     try {
-      const { type } = req.query;
-      if (req.user) throw { message: "User is not granted" };
-
-      const filter: Prisma.EventWhereInput = {};
-      if (type === "active") {
-        filter.AND = [
-          { Ticket: { some: {} } },
-          { end_date: { gt: new Date() } },
-        ];
-      } else if (type === "draft") {
-        filter.AND = [
-          { Ticket: { none: {} } },
-          { end_date: { gt: new Date() } },
-        ];
-      } else if (type === "unactive") {
-        filter.end_date = { lt: new Date() };
-      }
-
-      const events = await prisma.event.findMany({
-        where: { organizer_id: req.organizer?.id, ...filter },
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          start_date: true,
-          end_date: true,
-          type: true,
-        },
+      const event = await prisma.event.findUnique({
+        where: { id: req.params.id },
       });
-      res.status(200).send({ result: events });
+      res.status(200).send({ result: event });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

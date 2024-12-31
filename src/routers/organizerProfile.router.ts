@@ -19,6 +19,11 @@ export class OrganizerProfileRouter {
       verifyToken,
       this.organizerController.getOrganizerId
     );
+    this.router.get(
+      "/events",
+      verifyToken,
+      this.organizerController.getEventsOrganizer
+    );
 
     this.router.patch("/:id", this.organizerController.editOrganizer);
   }

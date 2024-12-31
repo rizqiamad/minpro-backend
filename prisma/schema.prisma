@@ -41,14 +41,6 @@ enum EventType {
   paid
 }
 
-enum RatingRange {
-  ONE   @map("1")
-  TWO   @map("2")
-  THREE @map("3")
-  FOUR  @map("4")
-  FIVE  @map("5")
-}
-
 model City {
   id       Int        @id @default(autoincrement())
   city     String     @unique @db.VarChar(255)
@@ -182,9 +174,9 @@ model Review {
   user_id  Int
   event_id String
   comment  String
-  rating   RatingRange
-  user     User        @relation(fields: [user_id], references: [id])
-  events   Event       @relation(fields: [event_id], references: [id])
+  rating   Int
+  user     User   @relation(fields: [user_id], references: [id])
+  events   Event  @relation(fields: [event_id], references: [id])
 
   @@id([user_id, event_id])
 }
