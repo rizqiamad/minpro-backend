@@ -171,12 +171,13 @@ model Event {
 }
 
 model Review {
-  user_id  Int
-  event_id String
-  comment  String
-  rating   Int
-  user     User   @relation(fields: [user_id], references: [id])
-  events   Event  @relation(fields: [event_id], references: [id])
+  user_id   Int
+  event_id  String
+  comment   String
+  rating    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [user_id], references: [id])
+  events    Event    @relation(fields: [event_id], references: [id])
 
   @@id([user_id, event_id])
 }

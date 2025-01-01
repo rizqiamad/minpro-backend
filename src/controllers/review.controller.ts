@@ -16,8 +16,19 @@ export class ReviewController {
 
   async getReviews(req: Request, res: Response) {
     try {
-      const reviews = prisma.review.findMany({
+      const reviews = await prisma.review.findMany({
         where: { event_id: req.params.id },
+        select: {
+          rating: true,
+          comment: true,
+          createdAt: true,
+          user: {
+            select: {
+              avatar: true,
+              full_name: true,
+            },
+          },
+        },
       });
       res.status(200).send({ result: reviews });
     } catch (err) {
