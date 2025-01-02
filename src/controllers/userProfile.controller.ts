@@ -83,6 +83,7 @@ export class UserProfileController {
           image: true,
           start_date: true,
           end_date: true,
+          type: true,
         },
       });
 

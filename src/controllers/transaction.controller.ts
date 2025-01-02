@@ -202,7 +202,7 @@ export class TransactionController {
           status: statusTransaction,
         },
       });
-      res.status(200).send({ message: "Success" });
+      res.status(200).send({ message: "Your transaction success" });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

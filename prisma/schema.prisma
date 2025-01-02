@@ -61,7 +61,7 @@ model Organizer {
   name         String   @db.VarChar(255)
   email        String   @unique @db.VarChar(255)
   password     String
-  avatar       String?
+  avatar       String   @default("https://res.cloudinary.com/dozmme9hc/image/upload/v1734232945/Default_idtsln.png")
   no_handphone String   @db.VarChar(255)
   isVerified   Boolean  @default(false)
   createdAt    DateTime @default(now())
@@ -74,7 +74,7 @@ model User {
   full_name     String        @db.VarChar(255)
   email         String        @unique @db.VarChar(255)
   password      String
-  avatar        String?
+  avatar        String        @default("https://res.cloudinary.com/dozmme9hc/image/upload/v1734232945/Default_idtsln.png")
   no_handphone  String        @db.VarChar(255)
   dob           DateTime
   jenis_kelamin JenisKelamin
@@ -129,7 +129,8 @@ model TicketTransaction {
 }
 
 model Coupon {
-  user_id   Int      @id
+  id        Int      @id @default(autoincrement())
+  user_id   Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   expiresAt DateTime

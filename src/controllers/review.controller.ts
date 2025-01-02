@@ -36,4 +36,17 @@ export class ReviewController {
       res.status(400).send(err);
     }
   }
+
+  async getAvg(req: Request, res: Response) {
+    try {
+      const avgRating = await prisma.review.aggregate({
+        where: { events: { organizer_id: +req.params.id } },
+        _avg: { rating: true },
+      });
+      res.status(200).send({ result: avgRating._avg.rating });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
 }

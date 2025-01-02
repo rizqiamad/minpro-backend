@@ -15,6 +15,7 @@ export class ReviewRouter {
   private initializeRoutes() {
     this.router.post("/:id", verifyToken, this.reviewController.createReview);
     this.router.get("/:id", this.reviewController.getReviews);
+    this.router.get("/avg/:id", this.reviewController.getAvg);
   }
 
   getRouter(): Router {
