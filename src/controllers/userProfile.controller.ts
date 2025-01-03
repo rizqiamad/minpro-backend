@@ -93,4 +93,29 @@ export class UserProfileController {
       res.status(400).send(err);
     }
   }
+
+  async getTicketsUser(req: Request, res: Response) {
+    try {
+      const tickets = await prisma.ticket.findMany({
+        where: {
+          AND: [
+            { event_id: req.params.id },
+            {
+              Ticket_Transaction: {
+                some: {
+                  transaction: {
+                    AND: [{ user_id: req.user?.id }, { status: "success" }],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      });
+      res.status(200).send({ result: tickets });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
 }

@@ -18,6 +18,11 @@ export class UserProfileRouter {
     this.router.get("/events", verifyToken, this.userController.getEventsUser);
 
     this.router.patch("/:id", this.userController.editUser);
+    this.router.get(
+      "/tickets/:id",
+      verifyToken,
+      this.userController.getTicketsUser
+    );
   }
 
   getRouter(): Router {
