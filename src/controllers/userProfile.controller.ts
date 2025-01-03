@@ -111,8 +111,36 @@ export class UserProfileController {
             },
           ],
         },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+        },
       });
       res.status(200).send({ result: tickets });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getAmountTicketsUser(req: Request, res: Response) {
+    try {
+      const amountTickets = await prisma.ticketTransaction.aggregate({
+        where: {
+          AND: [
+            {
+              transaction: {
+                AND: [{ user_id: req.user?.id }, { status: "success" }],
+              },
+            },
+            { ticket_id: +req.params.id },
+          ],
+        },
+        _sum: { quantity: true },
+      });
+      res.status(200).send({ result: amountTickets._sum.quantity });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

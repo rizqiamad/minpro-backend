@@ -23,6 +23,11 @@ export class UserProfileRouter {
       verifyToken,
       this.userController.getTicketsUser
     );
+    this.router.get(
+      "/amount/tickets/:id",
+      verifyToken,
+      this.userController.getAmountTicketsUser
+    );
   }
 
   getRouter(): Router {
