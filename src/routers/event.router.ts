@@ -21,6 +21,7 @@ export class EventRouter {
       upload.single("image"),
       this.eventController.createEvent
     );
+    this.router.get("/display", this.eventController.getEventsDisplay);
 
     this.router.get("/:id", this.eventController.getEventDetail);
     this.router.get("/review/:id", this.eventController.getEventId);

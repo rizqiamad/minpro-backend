@@ -65,20 +65,23 @@ export class EventController {
       req.body.image = secure_url;
 
       const { city, name_place, address, ...restBody } = req.body;
+      console.log(req.body);
 
       let findCity = await prisma.city.findFirst({
         where: { city: { equals: city, mode: "insensitive" } },
       });
+      let newCity = false;
       if (!findCity) {
         findCity = await prisma.city.create({
-          data: { city: city[0].toUpperCase() },
+          data: { city: `${city[0].toUpperCase()}${city.slice(1)}` },
         });
+        newCity = true;
       }
 
       let findLocation = await prisma.location.findFirst({
-        where: { address: { equals: city, mode: "insensitive" } },
+        where: { address: { equals: address, mode: "insensitive" } },
       });
-      if (findLocation?.name_place !== name_place || !findLocation) {
+      if (findLocation?.name_place !== name_place || !findLocation || newCity) {
         findLocation = await prisma.location.create({
           data: { name_place, address, city_id: findCity.id },
         });
@@ -157,6 +160,47 @@ export class EventController {
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
+    }
+  }
+
+  async getEventsDisplay(req: Request, res: Response) {
+    try {
+      const filter: Prisma.EventWhereInput = {
+        AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+      };
+
+      const events = await prisma.event.findMany({
+        take: 5,
+        where: filter,
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          start_date: true,
+          end_date: true,
+          type: true,
+          organizer: {
+            select: {
+              name: true,
+              avatar: true,
+            },
+          },
+          Ticket: {
+            select: {
+              price: true,
+            },
+            orderBy: {
+              price: "asc",
+            },
+            take: 1,
+          },
+        },
+      });
+
+      res.status(200).send({ result: events });
+    } catch (err) {
+      console.log(err);
+      res.status(200).send(err);
     }
   }
 }

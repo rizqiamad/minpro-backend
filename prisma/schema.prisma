@@ -107,6 +107,8 @@ model Transaction {
   id          Int               @id @default(autoincrement())
   user_id     Int
   base_price  Int
+  coupon      Boolean           @default(false)
+  point       Int               @default(0)
   final_price Int
   status      StatusTransaction @default(pending)
   createdAt   DateTime          @default(now())

@@ -13,7 +13,7 @@ export class OrganizerProfileRouter {
   }
 
   private initializeRoutes() {
-    this.router.get("/", verifyToken, this.organizerController.getOrganizers);
+    this.router.get("/", this.organizerController.getOrganizers);
     this.router.get(
       "/profile",
       verifyToken,
