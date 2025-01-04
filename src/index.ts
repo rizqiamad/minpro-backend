@@ -15,8 +15,15 @@ const PORT: number = 8000;
 const app: Application = express();
 dotenv.config();
 
+console.log(process.env.DATABASE_URL);
+
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // restrict calls to those this address
+    credentials: true,
+  })
+);
 export const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/api", (req: Request, res: Response) => {

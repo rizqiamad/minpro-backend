@@ -27,7 +27,7 @@ export class UserProfileController {
       const user = await prisma.user.findUnique({
         where: { id: req.user?.id }
       });
-      res.status(200).send({ user });
+      res.status(200).send({ result: user });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

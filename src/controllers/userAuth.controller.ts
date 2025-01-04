@@ -92,7 +92,7 @@ export class UserAuthController {
       const isValidPass = await compare(password, user.password);
       if (!isValidPass) throw { message: "Incorrect password" };
 
-      const payload = { id: user.id };
+      const payload = { id: user.id, role: 'user' };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       res.status(200).send({

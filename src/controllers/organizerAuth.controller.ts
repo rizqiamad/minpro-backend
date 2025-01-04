@@ -75,7 +75,7 @@ export class OrganizerAuthController {
       const isValidPass = await compare(password, organizer.password);
       if (!isValidPass) throw { message: "Incorrect password" };
 
-      const payload = { id: organizer.id };
+      const payload = { id: organizer.id, role: 'organizer' };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       res.status(200).send({
