@@ -17,6 +17,11 @@ export class UserProfileRouter {
     this.router.get("/profile", verifyToken, this.userController.getUserId);
     this.router.get("/events", verifyToken, this.userController.getEventsUser);
     this.router.get("/coupon", verifyToken, this.userController.getUserCoupon);
+    this.router.get(
+      "/points",
+      verifyToken,
+      this.userController.getPointsUser
+    );
 
     this.router.get(
       "/tickets/:id",

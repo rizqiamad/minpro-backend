@@ -145,7 +145,26 @@ export class UserProfileController {
         },
         select: { active: true },
       });
-      res.status(200).send({ result: coupon });
+      res.status(200).send({ result: coupon?.active });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getPointsUser(req: Request, res: Response) {
+    try {
+      const points = await prisma.point.aggregate({
+        where: {
+          AND: [
+            { user_id: req.user?.id },
+            { active: true },
+            { expiresAt: { gt: new Date() } },
+          ],
+        },
+        _sum: { total: true },
+      });
+      res.status(200).send({ result: points._sum.total });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

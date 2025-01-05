@@ -7,7 +7,7 @@ export class TransactionController {
   async createTransaction(req: Request<{}, {}, requestBody>, res: Response) {
     try {
       const userId = req.user?.id;
-      const { base_price, coupon, final_price, ticketCart } = req.body;
+      const { base_price, coupon, point, final_price, ticketCart } = req.body;
       console.log(req.body);
 
       const transactionId = await prisma.$transaction(async (prisma) => {
@@ -20,11 +20,18 @@ export class TransactionController {
             data: { active: false },
           });
         }
+        if (point) {
+          await prisma.point.updateMany({
+            where: { user_id: userId },
+            data: { active: false },
+          });
+        }
         const { id } = await prisma.transaction.create({
           data: {
             user_id: userId!,
             base_price,
             coupon,
+            point,
             final_price,
             expiresAt: new Date(new Date().getTime() + 30 * 60000),
           },
@@ -70,6 +77,7 @@ export class TransactionController {
         select: {
           expiresAt: true,
           coupon: true,
+          point: true,
           base_price: true,
           final_price: true,
           Ticket_Transaction: {
@@ -121,14 +129,10 @@ export class TransactionController {
 
       const checkTransaction = await prisma.transaction.findUnique({
         where: { id: order_id },
-        select: { status: true, expiresAt: true, coupon: true },
+        select: { status: true, expiresAt: true, coupon: true, point: true },
       });
       if (checkTransaction?.status === "canceled")
         throw "You cannot continue transaction, as your delaying transaction";
-
-      const resMinutes =
-        new Date(`${checkTransaction?.expiresAt}`).getTime() -
-        new Date().getTime();
 
       const ticketTransaction = await prisma.ticketTransaction.findMany({
         where: { transaction_id: order_id },
@@ -156,15 +160,34 @@ export class TransactionController {
 
       if (checkTransaction?.coupon) {
         const coupon = await prisma.coupon.findFirst({
-          where: { user_id: req.user?.id },
+          where: { user_id: user?.id },
         });
         item_details.push({
           id: coupon?.id,
-          price: -req.body.base_price / 10,
+          price: -(req.body.base_price - checkTransaction.point) / 10,
           quantity: 1,
           name: "Coupon",
         });
       }
+
+      if (checkTransaction && checkTransaction?.point > 0) {
+        const points = await prisma.point.findMany({
+          where: { user_id: req.user?.id },
+          select: { total: true },
+          orderBy: { createdAt: "asc" },
+        });
+
+        item_details.push({
+          id: points[0].total,
+          price: -checkTransaction.point,
+          quantity: 1,
+          name: "Points",
+        });
+      }
+
+      const resMinutes =
+        new Date(`${checkTransaction?.expiresAt}`).getTime() -
+        new Date().getTime();
 
       const snap = new midtransClient.Snap({
         isProduction: false,
