@@ -7,13 +7,18 @@ export class EventController {
   async getEvents(req: Request, res: Response) {
     try {
       const limit = 8;
-      const { sorts = "asc", page = "1", cat, search } = req.query;
+      const { sorts = "asc", page = "1", cat, search, c } = req.query;
       const filter: Prisma.EventWhereInput = {
         AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
       };
 
       if (cat) filter.category = cat as Prisma.EnumEventCategoryFilter;
       if (search) filter.name = { contains: `${search}`, mode: "insensitive" };
+      if (c) {
+        filter.location = {
+          city: { city: { equals: `${c}`, mode: "insensitive" } },
+        };
+      }
 
       const totalEvent = await prisma.event.aggregate({
         where: filter,
