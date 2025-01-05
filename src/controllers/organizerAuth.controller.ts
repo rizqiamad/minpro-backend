@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import path from "path";
 import { genSalt, hash, compare } from "bcrypt";
 import { findOrganizer } from "../services/organizer.services";
-import { sign, verify } from "jsonwebtoken";
+import { RoleIdJwtPayload, sign, verify } from "jsonwebtoken";
 import { transporter } from "../services/mailer";
 import fs from "fs";
 import handlebars from "handlebars";
@@ -94,9 +94,8 @@ export class OrganizerAuthController {
   async verifyOrganizer(req: Request, res: Response) {
     try {
       const { token } = req.params;
-      console.log(token);
 
-      const verifiedOrganizer: any = verify(token, process.env.JWT_KEY!);
+      const verifiedOrganizer = <RoleIdJwtPayload>verify(token, process.env.JWT_KEY!);
       await prisma.organizer.update({
         data: { isVerified: true },
         where: { id: verifiedOrganizer.id },

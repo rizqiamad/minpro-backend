@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { TicketController } from "../controllers/ticket.controller";
 import { GraphController } from "../controllers/dashboard.controller";
 import { verifyToken } from "../middlewares/verify";
 
@@ -24,6 +23,16 @@ export class GraphRouter {
       verifyToken,
       this.graphController.getCourses
     );
+    this.router.get(
+      "/graphtransaction",
+      verifyToken,
+      this.graphController.getTransactionGraph
+    )
+    this.router.get(
+      "/totaltransaction",
+      verifyToken,
+      this.graphController.getTotalTransaction
+    )
   }
 
   getRouter(): Router {
