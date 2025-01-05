@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { FormatMonth } from "../helpers/monthCalendar";
+import { Prisma } from "@prisma/client";
 
 export class GraphController {
   async getActiveEvent(req: Request, res: Response) {
@@ -35,19 +36,67 @@ export class GraphController {
     }
   }
 
-  async getCourses(req: Request, res: Response){
+  async getTransactionGraph(req: Request, res: Response) {
     try {
-        const id = req.organizer?.id
-        const event = await prisma.event.findMany({
-            where: {organizer_id : id}
-        })
-        const eventTotal: number = event.length
-        console.log(eventTotal);
-        
-        res.status(200).send({eventTotal})
+      const filter: Prisma.TransactionWhereInput = {
+        AND: [
+          { status: "success" },
+          {
+            Ticket_Transaction: {
+              some: { ticket: { events: { organizer_id: req.organizer?.id } } },
+            },
+          },
+        ],
+      };
+
+      const trans = await prisma.transaction.findMany({
+        where: filter,
+        select: { final_price: true, createdAt: true },
+      });
+      res.status(200).send({ result: trans });
     } catch (err) {
-        console.log(err)
-        res.status(400).send(err);
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getCourses(req: Request, res: Response) {
+    try {
+      const id = req.organizer?.id;
+      const event = await prisma.event.findMany({
+        where: { organizer_id: id },
+      });
+      const eventTotal: number = event.length;
+      console.log(eventTotal);
+
+      res.status(200).send({ eventTotal });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getTotalTransaction(req: Request, res: Response) {
+    try {
+      const filter: Prisma.TransactionWhereInput = {
+        AND: [
+          { status: "success" },
+          {
+            Ticket_Transaction: {
+              some: { ticket: { events: { organizer_id: req.organizer?.id } } },
+            },
+          },
+        ],
+      };
+
+      const trans = await prisma.transaction.aggregate({
+        where: filter,
+        _count: { _all: true },
+      });
+      res.status(200).send({ result: trans._count._all });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
     }
   }
 }

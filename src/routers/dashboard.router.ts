@@ -24,6 +24,16 @@ export class GraphRouter {
       verifyToken,
       this.graphController.getCourses
     );
+    this.router.get(
+      "/graphtransaction",
+      verifyToken,
+      this.graphController.getTransactionGraph
+    )
+    this.router.get(
+      "/totaltransaction",
+      verifyToken,
+      this.graphController.getTotalTransaction
+    )
   }
 
   getRouter(): Router {
