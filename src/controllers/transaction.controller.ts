@@ -7,12 +7,27 @@ export class TransactionController {
   async createTransaction(req: Request<{}, {}, requestBody>, res: Response) {
     try {
       const userId = req.user?.id;
-      const { base_price, final_price, ticketCart } = req.body;
-      const expiresAt = new Date(new Date().getTime() + 30 * 60000);
+      const { base_price, coupon, final_price, ticketCart } = req.body;
+      console.log(req.body);
 
       const transactionId = await prisma.$transaction(async (prisma) => {
+        if (coupon) {
+          const coupon = await prisma.coupon.findFirst({
+            where: { user_id: userId },
+          });
+          await prisma.coupon.update({
+            where: { id: coupon?.id },
+            data: { active: false },
+          });
+        }
         const { id } = await prisma.transaction.create({
-          data: { user_id: userId!, base_price, final_price, expiresAt },
+          data: {
+            user_id: userId!,
+            base_price,
+            coupon,
+            final_price,
+            expiresAt: new Date(new Date().getTime() + 30 * 60000),
+          },
         });
 
         await Promise.all(
@@ -54,6 +69,7 @@ export class TransactionController {
         where: { id: +req.params.id },
         select: {
           expiresAt: true,
+          coupon: true,
           base_price: true,
           final_price: true,
           Ticket_Transaction: {
@@ -105,7 +121,7 @@ export class TransactionController {
 
       const checkTransaction = await prisma.transaction.findUnique({
         where: { id: order_id },
-        select: { status: true, expiresAt: true },
+        select: { status: true, expiresAt: true, coupon: true },
       });
       if (checkTransaction?.status === "canceled")
         throw "You cannot continue transaction, as your delaying transaction";
@@ -135,6 +151,18 @@ export class TransactionController {
           price: item.subtotal / item.quantity,
           quantity: item.quantity,
           name: item.ticket.name,
+        });
+      }
+
+      if (checkTransaction?.coupon) {
+        const coupon = await prisma.coupon.findFirst({
+          where: { user_id: req.user?.id },
+        });
+        item_details.push({
+          id: coupon?.id,
+          price: -req.body.base_price / 10,
+          quantity: 1,
+          name: "Coupon",
         });
       }
 

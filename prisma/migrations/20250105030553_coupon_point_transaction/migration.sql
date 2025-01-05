@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Transaction" ADD COLUMN     "coupon" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "point" INTEGER NOT NULL DEFAULT 0;

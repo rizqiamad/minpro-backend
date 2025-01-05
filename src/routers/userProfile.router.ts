@@ -16,8 +16,8 @@ export class UserProfileRouter {
     this.router.get("/", verifyToken, this.userController.getUsers);
     this.router.get("/profile", verifyToken, this.userController.getUserId);
     this.router.get("/events", verifyToken, this.userController.getEventsUser);
+    this.router.get("/coupon", verifyToken, this.userController.getUserCoupon);
 
-    this.router.patch("/:id", this.userController.editUser);
     this.router.get(
       "/tickets/:id",
       verifyToken,

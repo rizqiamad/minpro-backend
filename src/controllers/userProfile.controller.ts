@@ -34,20 +34,6 @@ export class UserProfileController {
     }
   }
 
-  async editUser(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      await prisma.user.update({
-        data: req.body,
-        where: { id: +id },
-      });
-      res.status(200).send("user updated");
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  }
-
   async getEventsUser(req: Request, res: Response) {
     try {
       if (req.organizer) throw { message: "Organizer is not granted" };
@@ -141,6 +127,25 @@ export class UserProfileController {
         _sum: { quantity: true },
       });
       res.status(200).send({ result: amountTickets._sum.quantity });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async getUserCoupon(req: Request, res: Response) {
+    try {
+      const coupon = await prisma.coupon.findFirst({
+        where: {
+          AND: [
+            { user_id: req.user?.id },
+            { expiresAt: { gt: new Date() } },
+            { active: true },
+          ],
+        },
+        select: { active: true },
+      });
+      res.status(200).send({ result: coupon });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
