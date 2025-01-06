@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum JenisKelamin {
+  l
+  p
+}
+
+enum StatusTransaction {
+  pending
+  success
+  canceled
+}
+
+enum EventCategory {
+  Festival
+  Konser
+  Pertandingan
+  Workshop
+  Konferensi
+  Seminar
+  Pertunjukkan
+  Lainnya
+}
+
+enum EventType {
+  free
+  paid
+}
+
+model City {
+  id       Int        @id @default(autoincrement())
+  city     String     @unique @db.VarChar(255)
+  Location Location[]
+}
+
+model Location {
+  id         Int     @id @default(autoincrement())
+  name_place String  @db.VarChar(255)
+  address    String  @db.VarChar(255)
+  city_id    Int
+  city       City    @relation(fields: [city_id], references: [id])
+  Event      Event[]
+}
+
+model Organizer {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  password     String
+  avatar       String   @default("https://res.cloudinary.com/dozmme9hc/image/upload/v1734232945/Default_idtsln.png")
+  no_handphone String   @db.VarChar(255)
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  Events       Event[]
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  full_name     String        @db.VarChar(255)
+  email         String        @unique @db.VarChar(255)
+  password      String
+  avatar        String        @default("https://res.cloudinary.com/dozmme9hc/image/upload/v1734232945/Default_idtsln.png")
+  no_handphone  String        @db.VarChar(255)
+  dob           DateTime
+  jenis_kelamin JenisKelamin
+  isVerified    Boolean       @default(false)
+  ref_code      String?       @unique @db.VarChar(255)
+  refer_by      String?       @db.VarChar(255)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Transaction   Transaction[]
+  Coupon        Coupon[]
+  Points        Point[]
+  Review        Review[]
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  event_id    String
+  name        String   @db.VarChar(255)
+  start_date  DateTime @db.Timestamp()
+  end_date    DateTime @db.Timestamp()
+  price       Int      @default(0)
+  seats       Int
+  description String?
+  events      Event    @relation(fields: [event_id], references: [id])
+
+  Ticket_Transaction TicketTransaction[]
+}
+
+model Transaction {
+  id          Int               @id @default(autoincrement())
+  user_id     Int
+  base_price  Int
+  coupon      Boolean           @default(false)
+  point       Int               @default(0)
+  final_price Int
+  status      StatusTransaction @default(pending)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  expiresAt   DateTime
+  user        User              @relation(fields: [user_id], references: [id])
+
+  Ticket_Transaction TicketTransaction[]
+}
+
+model TicketTransaction {
+  transaction_id Int
+  ticket_id      Int
+  quantity       Int
+  subtotal       Int
+  transaction    Transaction @relation(fields: [transaction_id], references: [id])
+  ticket         Ticket      @relation(fields: [ticket_id], references: [id])
+
+  @@id([transaction_id, ticket_id])
+}
+
+model Coupon {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model Point {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  total     Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model Event {
+  id              String        @id @default(uuid())
+  name            String        @db.VarChar()
+  image           String
+  start_date      DateTime      @db.Timestamp()
+  end_date        DateTime      @db.Timestamp()
+  start_time      DateTime      @db.Time()
+  end_time        DateTime      @db.Time()
+  location_id     Int
+  organizer_id    Int
+  category        EventCategory
+  type            EventType
+  description     String?
+  terms_condition String?
+  coupon_seat     Int?
+
+  location  Location  @relation(fields: [location_id], references: [id])
+  organizer Organizer @relation(fields: [organizer_id], references: [id])
+  Ticket    Ticket[]
+  Review    Review[]
+}
+
+model Review {
+  user_id   Int
+  event_id  String
+  comment   String
+  rating    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [user_id], references: [id])
+  events    Event    @relation(fields: [event_id], references: [id])
+
+  @@id([user_id, event_id])
+}
