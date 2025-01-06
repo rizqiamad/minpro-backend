@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { FormatMonth } from "../helpers/monthCalendar";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../prisma/generated/client";
 
 export class GraphController {
   async getActiveEvent(req: Request, res: Response) {
