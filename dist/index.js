@@ -23,6 +23,7 @@ const PORT = 8000;
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     origin: process.env.BASE_URL_FE,
     credentials: true,
 }));
