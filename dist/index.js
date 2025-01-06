@@ -51,3 +51,4 @@ app.use("/api/graph", graphRouter.getRouter());
 app.use("/api/reviews", reviewRouter.getRouter());
 app.use("/api/metadata", metadataRouter.getRouter());
 app.listen(PORT, () => console.log(`Server running on --> http://localhost:${PORT}/api`));
+exports.default = app;

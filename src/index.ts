@@ -55,3 +55,5 @@ app.use("/api/metadata", metadataRouter.getRouter());
 app.listen(PORT, () =>
   console.log(`Server running on --> http://localhost:${PORT}/api`)
 );
+
+export default app;
