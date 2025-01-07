@@ -53,7 +53,7 @@ class UserAuthController {
                 const payload = { id: newUser.id, role: "user" };
                 const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "24h" });
                 // Verification email link
-                const link = `${process.env.BASE_URL_FE}verify/user/${token}`;
+                const link = `${process.env.BASE_URL_FE}/verify/user/${token}`;
                 // Compile the email template
                 const templatePath = path_1.default.join(__dirname, "../templates", "verifyUser.html");
                 const templateSource = fs_1.default.readFileSync(templatePath, "utf-8");

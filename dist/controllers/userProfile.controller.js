@@ -14,28 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserProfileController = void 0;
 const prisma_1 = __importDefault(require("../prisma"));
+const cloudinary_1 = require("../services/cloudinary");
 class UserProfileController {
-    getUsers(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(req.user);
-                const filter = {};
-                const { search } = req.query;
-                if (search) {
-                    filter.OR = [
-                        { full_name: { contains: search } },
-                        { email: { contains: search, mode: "insensitive" } },
-                    ];
-                }
-                const users = yield prisma_1.default.user.findMany({ where: filter });
-                res.status(200).send({ users });
-            }
-            catch (err) {
-                console.log(err);
-                res.status(400).send(err);
-            }
-        });
-    }
     getUserId(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -72,7 +52,7 @@ class UserProfileController {
                 const { type } = req.query;
                 if (type === "active") {
                     filter.end_date = {
-                        gt: new Date(),
+                        gte: new Date(),
                     };
                 }
                 else if (type === "unactive") {
@@ -166,7 +146,7 @@ class UserProfileController {
                     where: {
                         AND: [
                             { user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
-                            { expiresAt: { gt: new Date() } },
+                            { expiresAt: { gte: new Date() } },
                             { active: true },
                         ],
                     },
@@ -189,12 +169,31 @@ class UserProfileController {
                         AND: [
                             { user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
                             { active: true },
-                            { expiresAt: { gt: new Date() } },
+                            { expiresAt: { gte: new Date() } },
                         ],
                     },
                     _sum: { total: true },
                 });
                 res.status(200).send({ result: points._sum.total });
+            }
+            catch (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+        });
+    }
+    editAvatarCloud(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                if (!req.file)
+                    throw { message: "failed, file is empty" };
+                const { secure_url } = yield (0, cloudinary_1.cloudinaryUpload)(req.file, "avatar");
+                yield prisma_1.default.user.update({
+                    data: { avatar: secure_url },
+                    where: { id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
+                });
+                res.status(200).send({ message: "Avatar has been edited" });
             }
             catch (err) {
                 console.log(err);

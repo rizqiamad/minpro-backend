@@ -24,7 +24,7 @@ export class OrganizerProfileController {
       const organizer = await prisma.organizer.findUnique({
         where: { id: req.organizer?.id },
       });
-      res.status(200).send({ organizer });
+      res.status(200).send({ result: organizer });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
@@ -45,7 +45,7 @@ export class OrganizerProfileController {
     }
   }
 
-  async getEventsOrganizer(req: Request, res: Response) {
+  async getEventsOrganizer(req: Request, res: Response) { 
     try {
       const { type } = req.query;
       if (req.user) throw { message: "User is not granted" };
@@ -54,12 +54,12 @@ export class OrganizerProfileController {
       if (type === "active") {
         filter.AND = [
           { Ticket: { some: {} } },
-          { end_date: { gt: new Date() } },
+          { end_date: { gte: new Date() } },
         ];
       } else if (type === "draft") {
         filter.AND = [
           { Ticket: { none: {} } },
-          { end_date: { gt: new Date() } },
+          { end_date: { gte: new Date() } },
         ];
       } else if (type === "unactive") {
         filter.end_date = { lt: new Date() };

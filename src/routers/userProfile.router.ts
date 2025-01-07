@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserProfileController } from "../controllers/userProfile.controller";
 import { verifyToken } from "../middlewares/verify";
+import { upload } from "..";
 
 export class UserProfileRouter {
   private userController: UserProfileController;
@@ -13,14 +14,15 @@ export class UserProfileRouter {
   }
 
   private initializeRoutes() {
-    this.router.get("/", verifyToken, this.userController.getUsers);
     this.router.get("/profile", verifyToken, this.userController.getUserId);
     this.router.get("/events", verifyToken, this.userController.getEventsUser);
     this.router.get("/coupon", verifyToken, this.userController.getUserCoupon);
-    this.router.get(
-      "/points",
+    this.router.get("/points", verifyToken, this.userController.getPointsUser);
+    this.router.patch(
+      "/avatar",
       verifyToken,
-      this.userController.getPointsUser
+      upload.single("image"),
+      this.userController.editAvatarCloud
     );
 
     this.router.get(

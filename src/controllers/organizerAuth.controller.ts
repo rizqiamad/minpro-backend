@@ -34,7 +34,7 @@ export class OrganizerAuthController {
       const payload = { id: newOrganizer.id, role: "organizer" };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
-      const link = `${process.env.BASE_URL_FE}verify/organizer/${token}`;
+      const link = `${process.env.BASE_URL_FE}/verify/organizer/${token}`;
 
       const templatePath = path.join(
         __dirname,

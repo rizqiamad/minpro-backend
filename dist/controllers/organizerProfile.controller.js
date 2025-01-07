@@ -40,7 +40,7 @@ class OrganizerProfileController {
                 const organizer = yield prisma_1.default.organizer.findUnique({
                     where: { id: (_a = req.organizer) === null || _a === void 0 ? void 0 : _a.id },
                 });
-                res.status(200).send({ organizer });
+                res.status(200).send({ result: organizer });
             }
             catch (err) {
                 console.log(err);
@@ -75,13 +75,13 @@ class OrganizerProfileController {
                 if (type === "active") {
                     filter.AND = [
                         { Ticket: { some: {} } },
-                        { end_date: { gt: new Date() } },
+                        { end_date: { gte: new Date() } },
                     ];
                 }
                 else if (type === "draft") {
                     filter.AND = [
                         { Ticket: { none: {} } },
-                        { end_date: { gt: new Date() } },
+                        { end_date: { gte: new Date() } },
                     ];
                 }
                 else if (type === "unactive") {

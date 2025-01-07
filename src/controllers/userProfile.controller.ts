@@ -1,27 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Prisma } from "../../prisma/generated/client";
+import { cloudinaryUpload } from "../services/cloudinary";
 
 export class UserProfileController {
-  async getUsers(req: Request, res: Response) {
-    try {
-      console.log(req.user);
-      const filter: Prisma.UserWhereInput = {};
-      const { search } = req.query;
-      if (search) {
-        filter.OR = [
-          { full_name: { contains: search as string } },
-          { email: { contains: search as string, mode: "insensitive" } },
-        ];
-      }
-      const users = await prisma.user.findMany({ where: filter });
-      res.status(200).send({ users });
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  }
-
   async getUserId(req: Request, res: Response) {
     try {
       const user = await prisma.user.findUnique({
@@ -53,7 +35,7 @@ export class UserProfileController {
       const { type } = req.query;
       if (type === "active") {
         filter.end_date = {
-          gt: new Date(),
+          gte: new Date(),
         };
       } else if (type === "unactive") {
         filter.end_date = {
@@ -139,7 +121,7 @@ export class UserProfileController {
         where: {
           AND: [
             { user_id: req.user?.id },
-            { expiresAt: { gt: new Date() } },
+            { expiresAt: { gte: new Date() } },
             { active: true },
           ],
         },
@@ -159,12 +141,27 @@ export class UserProfileController {
           AND: [
             { user_id: req.user?.id },
             { active: true },
-            { expiresAt: { gt: new Date() } },
+            { expiresAt: { gte: new Date() } },
           ],
         },
         _sum: { total: true },
       });
       res.status(200).send({ result: points._sum.total });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+
+  async editAvatarCloud(req: Request, res: Response) {
+    try {
+      if (!req.file) throw { message: "failed, file is empty" };
+      const { secure_url } = await cloudinaryUpload(req.file, "avatar");
+      await prisma.user.update({
+        data: { avatar: secure_url },
+        where: { id: req.user?.id },
+      });
+      res.status(200).send({ message: "Avatar has been edited" });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

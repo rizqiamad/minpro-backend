@@ -43,7 +43,7 @@ class OrganizerAuthController {
                 });
                 const payload = { id: newOrganizer.id, role: "organizer" };
                 const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "24h" });
-                const link = `${process.env.BASE_URL_FE}verify/organizer/${token}`;
+                const link = `${process.env.BASE_URL_FE}/verify/organizer/${token}`;
                 const templatePath = path_1.default.join(__dirname, "../templates", "verifyOrganizer.html");
                 const templateSource = fs_1.default.readFileSync(templatePath, "utf-8");
                 const compiledTemplate = handlebars_1.default.compile(templateSource);

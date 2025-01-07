@@ -53,7 +53,7 @@ export class UserAuthController {
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "24h" });
 
       // Verification email link
-      const link = `${process.env.BASE_URL_FE}verify/user/${token}`;
+      const link = `${process.env.BASE_URL_FE}/verify/user/${token}`;
 
       // Compile the email template
       const templatePath = path.join(

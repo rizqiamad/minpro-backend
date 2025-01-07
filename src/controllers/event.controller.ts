@@ -9,7 +9,7 @@ export class EventController {
       const limit = 8;
       const { sorts = "asc", page = "1", cat, search, c } = req.query;
       const filter: Prisma.EventWhereInput = {
-        AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+        AND: [{ Ticket: { some: {} } }, { end_date: { gte: new Date() } }],
       };
 
       if (cat) filter.category = cat as Prisma.EnumEventCategoryFilter;
@@ -171,7 +171,7 @@ export class EventController {
   async getEventsDisplay(req: Request, res: Response) {
     try {
       const filter: Prisma.EventWhereInput = {
-        AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+        AND: [{ Ticket: { some: {} } }, { end_date: { gte: new Date() } }],
       };
 
       const events = await prisma.event.findMany({

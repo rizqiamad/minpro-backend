@@ -33,7 +33,7 @@ class EventController {
                 const limit = 8;
                 const { sorts = "asc", page = "1", cat, search, c } = req.query;
                 const filter = {
-                    AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+                    AND: [{ Ticket: { some: {} } }, { end_date: { gte: new Date() } }],
                 };
                 if (cat)
                     filter.category = cat;
@@ -199,7 +199,7 @@ class EventController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const filter = {
-                    AND: [{ Ticket: { some: {} } }, { end_date: { gt: new Date() } }],
+                    AND: [{ Ticket: { some: {} } }, { end_date: { gte: new Date() } }],
                 };
                 const events = yield prisma_1.default.event.findMany({
                     take: 5,
