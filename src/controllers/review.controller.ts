@@ -5,7 +5,9 @@ export class ReviewController {
   async createReview(req: Request, res: Response) {
     try {
       const user = await prisma.review.findFirst({
-        where: { user_id: req.user?.id },
+        where: {
+          AND: [{ user_id: req.user?.id }, { event_id: req.params.id }],
+        },
       });
       if (user) throw { message: "You are just granted to give comment once" };
 

@@ -25,7 +25,6 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         next();
     }
     catch (err) {
-        console.log(err);
         res.status(400).send(err);
     }
 });

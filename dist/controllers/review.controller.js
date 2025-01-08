@@ -20,7 +20,9 @@ class ReviewController {
             var _a, _b;
             try {
                 const user = yield prisma_1.default.review.findFirst({
-                    where: { user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id },
+                    where: {
+                        AND: [{ user_id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id }, { event_id: req.params.id }],
+                    },
                 });
                 if (user)
                     throw { message: "You are just granted to give comment once" };
