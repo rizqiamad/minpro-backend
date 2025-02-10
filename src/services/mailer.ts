@@ -6,5 +6,3 @@ export const transporter = nodemailer.createTransport({
         pass: process.env.MAIL_PASS,
     },
 })
-
-//DIEDIT JAM 2.38
